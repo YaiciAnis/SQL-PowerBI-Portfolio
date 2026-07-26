@@ -1,48 +1,73 @@
-CREATE DATABASE projects;
+-- ==========================================
+-- HR DATA CLEANING
+-- ==========================================
+
 USE projects;
-SELECT * FROM hr;
+
+-- ==========================================
+-- Rename ID column
+-- ==========================================
+
 ALTER TABLE hr
-CHANGE COLUMN ï»¿id emp_id VARCHAR(20) NULL;
-DESCRIBE hr;
-SELECT birthdate FROM hr;
-SET sql_safe_updates = 0;
+CHANGE COLUMN `ï»¿id` emp_id VARCHAR(20);
+
+-- Disable safe update mode
+SET SQL_SAFE_UPDATES = 0;
+
+-- ==========================================
+-- Clean birthdate
+-- ==========================================
 
 UPDATE hr
 SET birthdate = CASE
-	WHEN birthdate LIKE '%/%' THEN date_format(str_to_date(birthdate, '%m/%d/%Y'), '%Y-%m-%d')
-    WHEN birthdate LIKE '%-%' THEN date_format(str_to_date(birthdate, '%m-%d-%Y'), '%Y-%m-%d')
+    WHEN birthdate LIKE '%/%'
+        THEN STR_TO_DATE(birthdate, '%m/%d/%Y')
+    WHEN birthdate LIKE '%-%'
+        THEN STR_TO_DATE(birthdate, '%m-%d-%Y')
     ELSE NULL
 END;
+
 ALTER TABLE hr
 MODIFY COLUMN birthdate DATE;
 
+-- ==========================================
+-- Clean hire_date
+-- ==========================================
+
 UPDATE hr
 SET hire_date = CASE
-	WHEN hire_date LIKE '%/%' THEN date_format(str_to_date(hire_date, '%m/%d/%Y'), '%Y-%m-%d')
-    WHEN hire_date LIKE '%-%' THEN date_format(str_to_date(hire_date, '%m-%d-%Y'), '%Y-%m-%d')
+    WHEN hire_date LIKE '%/%'
+        THEN STR_TO_DATE(hire_date, '%m/%d/%Y')
+    WHEN hire_date LIKE '%-%'
+        THEN STR_TO_DATE(hire_date, '%m-%d-%Y')
     ELSE NULL
 END;
 
 ALTER TABLE hr
 MODIFY COLUMN hire_date DATE;
 
-
+-- ==========================================
+-- Clean termdate
+-- ==========================================
 
 UPDATE hr
 SET termdate = STR_TO_DATE(termdate, '%Y-%m-%d %H:%i:%s UTC')
 WHERE termdate IS NOT NULL
-AND termdate <> '';
-
-ALTER TABLE hr ADD COLUMN age INT;
+  AND TRIM(termdate) <> '';
 
 UPDATE hr
-SET age = timestampdiff(YEAR, birthdate, CURDATE());
+SET termdate = NULL
+WHERE TRIM(termdate) = '';
 
-SELECT 
-	min(age) AS youngest,
-    max(age) AS oldest
-FROM hr;
+ALTER TABLE hr
+MODIFY COLUMN termdate DATE;
 
-SELECT count(*) FROM hr WHERE age < 18;
+-- ==========================================
+-- Add age column
+-- ==========================================
 
+ALTER TABLE hr
+ADD COLUMN age INT;
 
+UPDATE hr
+SET age = TIMESTAMPDIFF(YEAR, birthdate, CURDATE());
