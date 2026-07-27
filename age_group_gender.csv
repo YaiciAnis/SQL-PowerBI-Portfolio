@@ -1,0 +1,16 @@
+age_group,gender,total_employees
+18-24,Female,272
+18-24,Male,273
+18-24,Non-Conforming,14
+25-34,Female,2294
+25-34,Male,2497
+25-34,Non-Conforming,125
+35-44,Female,2298
+35-44,Male,2646
+35-44,Non-Conforming,147
+45-54,Female,2247
+45-54,Male,2464
+45-54,Non-Conforming,139
+55-64,Female,1344
+55-64,Male,1448
+55-64,Non-Conforming,77

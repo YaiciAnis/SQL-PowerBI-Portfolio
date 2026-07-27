@@ -1,4 +1,4 @@
--- ==========================================
+--- ==========================================
 -- HR DATA CLEANING
 -- ==========================================
 
@@ -23,12 +23,17 @@ SET birthdate = CASE
     WHEN birthdate LIKE '%/%'
         THEN STR_TO_DATE(birthdate, '%m/%d/%Y')
     WHEN birthdate LIKE '%-%'
-        THEN STR_TO_DATE(birthdate, '%m-%d-%Y')
+        THEN STR_TO_DATE(birthdate, '%m-%d-%y')
     ELSE NULL
 END;
 
 ALTER TABLE hr
 MODIFY COLUMN birthdate DATE;
+
+-- Correct future birth years (2065-2069 -> 1965-1969)
+UPDATE hr
+SET birthdate = DATE_SUB(birthdate, INTERVAL 100 YEAR)
+WHERE YEAR(birthdate) > YEAR(CURDATE());
 
 -- ==========================================
 -- Clean hire_date
@@ -71,3 +76,13 @@ ADD COLUMN age INT;
 
 UPDATE hr
 SET age = TIMESTAMPDIFF(YEAR, birthdate, CURDATE());
+
+
+SELECT
+    age,
+    COUNT(*) AS total
+FROM hr
+GROUP BY age
+ORDER BY age;
+
+ 
